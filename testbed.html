@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="An Adaptive Density Graphical Photo Browser written in Computed HTML">
+    <link rel="icon" href="favicon.ico">
+	<title>TestBed</title>
+<style>
+/*
+@import 'https://fonts.googleapis.com/css?family=Lato:400,700';
+@import 'https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap';
+*/
+
+@import 'https://fonts.googleapis.com/icon?family=Material+Icons';
+
+/*! minireset.css v0.0.6 | MIT License | github.com/jgthms/minireset.css */html,body,p,ol,ul,li,dl,dt,dd,blockquote,figure,fieldset,legend,textarea,pre,iframe,hr,h1,h2,h3,h4,h5,h6{margin:0;padding:0}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal}ul{list-style:none}button,input,select{margin:0}html{box-sizing:border-box}*,*::before,*::after{box-sizing:inherit}img,video{height:auto;max-width:100%}iframe{border:0}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}
+
+/* Rules for sizing the icon. */
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; }
+.material-icons.md-48 { font-size: 48px; }
+
+/* Rules for using icons as black on a light background. */
+.material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
+.material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
+
+/* Rules for using icons as white on a dark background. */
+.material-icons.md-light { color: rgba(242, 242, 242, 1); }
+.material-icons.md-light.md-inactive { color: rgba(242, 242, 242, 0.3); }
+
+.material-icons {
+    line-height:48px;
+    margin:0 8px 0 8px;
+}
+/*
+html, body {
+    font-family: 'Arial, Helvetica', sans-serif;
+    background:#222222;
+    color:#F2F2F2;
+}
+*/
+body {
+    background:#222222;
+    color:#F2F2F2;
+    font-family: "Open Sans";
+}
+
+header {
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:48px;
+    display:flex;
+    justify-content:space-between;
+    padding:0 16px 0 16px;
+}
+
+#prog-dark {
+    position:fixed;
+    top:48px;
+    /*
+    left:0;
+    right:0;
+
+    bottom:0;
+    z-index:0;
+    overflow-x:hidden;
+    overflow-y:scroll;
+*/
+  width: 100%;
+  height: 4px;
+  background:#5f5f5f;
+  background:#222222;
+}
+
+#prog-lite {
+  height: 100%;
+  width: 35%;
+  background:#444;
+}
+
+
+#pga {
+    position:fixed;
+    top:56px;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:0;
+    overflow-x:hidden;
+    overflow-y:scroll;
+}
+
+
+nav.left, .logo, nav.right {
+    line-height:48px;
+}
+
+nav.left, nav.right {
+    display:flex;
+}
+
+nav.menu {
+    position:fixed;
+    top:0;
+    right:0px;
+    height:48px;
+    line-height:48px;
+    display:flex;
+    justify-content:flex-end;
+    padding:0 16px 0 16px;
+    background:#222;
+    z-index:11;
+}
+
+
+
+</style>
+
+</head>
+
+<body>
+<!-- <link href="litebox.css" rel="stylesheet">-->
+<noscript>This web app requires JavaScript.</noscript>
+<script src="catalog.js"></script>
+<!-- <script src="litebox.js"></script> -->
+<script src="testbed-adg.js"></script>
+<script>
+
+
+// globals
+
+var 
+    last_width,             
+    columns_per_row, 
+    total_gutter_width, 
+    max_img_width, 
+    render_width, 
+    gallery_width, 
+    left_offset,
+    page_length, 
+    total_pages, 
+    page_number, 
+    column_height, 
+    last_n, 
+    start, 
+    t, 
+    page_length;
+
+var
+    page_ranges,
+    min_idx,
+    max_idx,
+    lastScrollTop;
+
+var
+    window_width, 
+    window_height, 
+    scrollbar_width, 
+    viewport_width;
+
+const
+    responsive_columns = [0, 0, 2, 2, 2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 6, 6, 7, 7, 8, 8, 9],
+    gutter_size = 8,
+    alt_max_width = 192,
+    dpr = devicePixelRatio,
+    WIDTH = 0, HEIGHT = 1, ID = 2, AUTH = 3, UNSPL = 4, ROW = 5, // pointers into the catalog
+    no = 0, yes = 1;
+
+// preferences
+
+const
+    PAGINATE = yes,
+    DOWNLOAD_LIMIT = 0; // 0 = no limit, else truncate catalog to n = DOWNLOAD_LIMIT photos
+
+if(DOWNLOAD_LIMIT) {
+    catalog = catalog.slice(0,DOWNLOAD_LIMIT-1);
+}
+
+
+function $(el) {
+
+    // that handy $('foo') shortcut thing
+
+    try {
+        return (typeof el == 'string') ? document.getElementById(el) : el;
+    } catch (e) {
+        if (debug) {
+            alert(el);
+        }
+    }
+}
+
+
+function adaptive_density(mode, id, axis, presentation_size) {
+
+    // mode = 1 (contant area) or 2 (constant density)
+    // id = id of photo in catalog
+    // axis = WIDTH (0) or HEIGHT (1)
+    // presentation_size = length of axis in density-independent pixels
+
+    var
+        adjusted_size,  // return value
+        adr,    // adaptive density ratio (mode 1 only)
+        aspect; // width or height
+
+    mode = (dpr>1) ? mode : 1;  // force sd and hd screens to constant area mode
+
+    if(mode == 1) {  // constant area mode
+
+        adr = dpr;  // devicePixelRatio
+
+        while(Math.floor(adr) > 1  && presentation_size * adr > catalog[id][axis]) {
+
+            adr -= 1;   // decimate adr
+        }
+
+        adjusted_size = Math.floor(presentation_size * adr);
+
+    } else {    // constant density mode
+
+        aspect = Math.max(catalog[id][WIDTH],catalog[id][HEIGHT]);
+
+        if(aspect <= presentation_size) {
+
+            adjusted_size  = catalog[id][axis];
+
+        } else if(aspect / dpr <= presentation_size) {
+
+            adjusted_size = Math.floor(catalog[id][axis] / dpr);
+
+        } else if(presentation_size * dpr <= catalog[id][axis]) {
+
+            // askeered that in some degenerate case, adaptive density might
+            // request an upsampled photo from the server, so we make sure
+            // the server has enough pixels to cash the density cheque
+
+            adjusted_size = Math.floor(presentation_size * dpr);
+
+        } else {
+
+            // if not, take all the pixels and let the browser fit them
+            // to the window
+
+            adjusted_size  = catalog[id][axis];
+        }
+    }
+
+    return adjusted_size;
+}
+
+
+function fetch_page() {
+
+    // fetch the next page from the catalog
+
+    var ll, rr;
+
+    if(page_number < total_pages) {
+
+        ll = (page_number * page_length), rr = ll + page_length - 1;
+
+        return catalog.slice(ll, rr).map(function(value,index) {
+            return value[ROW];
+        });
+
+    } else {
+        return [];
+    }
+}
+
+/*function get_pp() {
+
+    var pp=0;
+
+    if(page_number>0) {
+
+        var pst = $('pga').scrollTop;
+
+        for(var i = page_ranges.length; i>0; i--) {
+
+            if(pst >= page_ranges[i][0] && pst <= page_ranges[i][1]) {
+
+                pp = i; break;
+            }
+        }
+    }
+    
+    console.log('page '+pp);
+    return pp; 
+}*/
+
+//var page_ranges=[], min_idx = 0, max_idx = 0;
+
+function auto_paginate() {
+
+    // stream a page of thumbnails to the browser
+
+    if(total_pages > 0) {
+
+        var page = fetch_page();
+
+        page_length = page.length;
+
+        if(page_length > 0) {
+
+            var adr,
+                render_height,
+                image,
+                i, // current image
+                j, // current column
+                chtml = [],
+                el;
+
+            // For each photo in the page,
+
+            for(i = 0; i < page_length; i++) {
+
+                // find the column with the shortest height,
+
+                j = column_height.indexOf(Math.min(...column_height)),
+
+                // compute the adaptive density ratio,
+
+                img_width = adaptive_density(1, page[i], WIDTH, render_width);
+
+                // and compile a thumbnail image.
+
+                aspect = catalog[page[i]][HEIGHT] / catalog[page[i]][WIDTH];
+
+                img_height = Math.floor(aspect * img_width);
+
+                render_height = Math.floor(aspect * render_width);
+                
+                filespec = `https://picsum.photos/id/${catalog[page[i]][ID]}/${img_width}/${img_height}`;
+
+                chtml[i] = `<img class="brick" style="top:${ 
+                    column_height[j]
+                }px;left:${
+                    left_offset + gutter_size + (j * (render_width + gutter_size))
+                }px;width:${
+                    render_width
+                }px;height:${
+                    render_height
+                }px;" src="${ filespec }" loading=lazy onclick="lightbox_open(${
+                    page[i]
+                });">`; // <div class="brick-id"></div>
+
+                // adjust the column height and continue with the next picture
+
+                column_height[j] += render_height + gutter_size;
+            }
+
+            max_idx = column_height[column_height.indexOf(Math.max(...column_height))];
+
+            page_ranges[page_number] = [min_idx, max_idx];
+
+            min_idx = max_idx + 1;
+
+            // console.log('pbar ' + page_number + ' = ' + min_idx + ' ... ' + max_idx);
+
+            // submit the page to the HTML interpreter
+
+            el = document.createElement('div');
+            el.innerHTML = chtml.join('');
+            $('gallery').appendChild(el);
+
+            // get_pp();//
+            set_progress(page_number);
+        }
+    }
+}
+
+function get_pp() {
+    
+    set_progress(page_number);
+    
+    var pp=0, prl=page_ranges.length;
+
+    if(prl>0) {
+
+        // print_r(page_ranges);
+
+        var pst = $('pga').scrollTop;
+
+        for(i=0; i<prl; i++) {
+
+            if(pst >= page_ranges[i][0] && pst <= page_ranges[i][1]) {
+
+                pp = i; break;
+            }
+           
+        }
+         set_progress(pp);
+
+    }
+
+    
+    return pp; 
+}
+/*
+function onScroll() {
+
+    var st = $('pga').scrollTop;
+
+    if (st > lastScrollTop) {
+
+        // downscroll 
+
+        if(page_number >= 0) {
+
+            if($('pga').scrollHeight - $('pga').scrollTop - $('pga').clientHeight < 1) {
+
+                page_number++;
+                page_number = (page_number>(total_pages-1)) ? -1 : page_number;
+                auto_paginate();
+            }
+        }    
+
+    } else if (st < lastScrollTop) {
+
+        // upscroll
+
+        get_pp();
+
+   } 
+}
+*/
+
+
+/*
+
+var lastScrollTop = 0;
+
+function onScroll() {
+
+    var st = $('pga').scrollTop;
+
+    if(page_number >= 0) {
+
+        if($('pga').scrollHeight - $('pga').scrollTop - $('pga').clientHeight < 1) {
+
+            page_number++;
+            page_number = (page_number>(total_pages-1)) ? -1 : page_number;
+            auto_paginate();
+        }
+
+//        get_pp();        
+    }    
+
+    
+ //console.log(st);
+
+   if (st > lastScrollTop) {
+
+    //downscroll
+
+
+
+//      console.log('downscroll');
+//      console.log($('pga').scrollTop);
+
+   } else if (st < lastScrollTop) {
+
+    // upscroll
+
+        get_pp();
+
+   }
+    
+    lastScrollTop = st <= 0 ? 0 : st;
+}
+*/
+
+lastScrollTop = 0;
+
+function onScroll() {
+ set_progress(page_number); 
+    var st = $('pga').scrollTop;
+
+    if (st > lastScrollTop) {           // downscroll 
+
+        if(page_number >= 0) {
+
+            if($('pga').scrollHeight - $('pga').scrollTop - $('pga').clientHeight < 1) {
+
+                page_number++;
+                page_number = (page_number>(total_pages-1)) ? -1 : page_number;
+                auto_paginate();
+            }
+            
+        }    
+
+    } else if (st < lastScrollTop) {    // upscroll
+ set_progress(page_number); 
+      get_pp();
+
+    }
+
+    lastScrollTop = st <= 0 ? 0 : st;
+}
+var progressbar;
+// progressbar[page_number]
+// progress = page_number * page_length;
+
+//0[pagey0,pagey1]
+//1[pagey0,pagey1]
+
+function init() {
+
+    last_width = viewport_width,
+
+    columns_per_row = (viewport_width < 300) ? 1 : ((viewport_width > 2100) ? 12 : responsive_columns[Math.floor(viewport_width / 100)]);
+
+    total_gutter_width = (columns_per_row + 1) * gutter_size,
+
+    max_img_width = (Math.floor((viewport_width - total_gutter_width) / columns_per_row) * 4) / 4,
+
+    render_width = (max_img_width >= alt_max_width) ? alt_max_width : max_img_width,
+
+    gallery_width = (render_width * columns_per_row) + total_gutter_width,
+
+    left_offset = Math.floor((viewport_width - gallery_width) / 2);
+
+    page_length = (PAGINATE) ? Math.ceil(window_height / render_width) * columns_per_row * 2 : catalog.length,
+
+    total_pages = Math.ceil(catalog.length / page_length),
+
+    progressbar = new Array(total_pages),
+
+    page_number = 0,
+
+    column_height = new Array(columns_per_row);
+
+    column_height.fill(gutter_size);
+
+    page_ranges=[], min_idx = max_idx = lastScrollTop = 0;
+
+    //$('pga').scrollTo(0,0);
+}
+
+
+function set_progress(pp) {
+
+    var tp = total_pages - 1;
+
+    pp = (pp<0) ? tp : pp;
+
+    var pct = Math.floor((pp / tp) * 100);
+    print_r([pp,tp,pct])
+    $('prog-lite').style.width = pct + '%';
+}
+
+
+
+// And Here. We. Go.
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    get_window_geometry();
+
+    init();
+
+    // render the user interface
+
+    var icon_pad = 16; // Math.floor((viewport_width - gallery_width)/2) - 16;
+
+    $('form1').innerHTML = `
+    <div id="browser">
+
+        <header>
+            <nav class="left" style="padding:0 ${icon_pad}px 0 ${icon_pad}px;">
+                <span class="material-icons md-24 md-light md-inactive">menu</span>
+            </nav>
+            <nav id="rspeed"></nav>
+            <nav></nav>
+        </header>
+        
+        <div id="prog-dark">
+          <div id="prog-lite"></div>
+        </div>
+           
+        <div id="pga">
+            <div id="gallery"></div>
+        </div>
+
+
+    </div>
+
+    <div id="lightbox">
+        <div id="imgdiv" class="cover" onclick="nfobox_toggle();">
+            <img class="slide" id="img01" src="1x1.gif" onclick="">
+        </div>
+    </div>
+
+    <div id="nfobox" style="top:${(window_height-260)/2}px;left:${(window_width-260)/2}px;" onclick="nfobox_toggle();"></div>
+
+    <nav id="menu" class="menu" style="visibility:hidden;">
+        <span class="material-icons md-24 md-light" onclick="nfobox_toggle();">info_outline</span>
+        <span class="material-icons md-24 md-light" onclick="lightbox_close();">close</span>
+    </nav>`;
+
+    if(PAGINATE) {
+
+        // fetch and render the next page on scroll
+        
+        $('pga').addEventListener("scroll", onScroll);
+    }
+
+    // fetch and render the first page
+
+    auto_paginate();
+
+});
+
+</script>
+<form name="form1" id="form1">
+</form>
+</body>
+
+</html>
