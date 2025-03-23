@@ -230,6 +230,7 @@ function print_r(obj) {
     console.log(JSON.stringify(obj));
 }
 
+
 function pageToPercent(pageNo) {
     
     pageNo = (pageNo<0) ? total_pages : pageNo;
@@ -239,29 +240,29 @@ function pageToPercent(pageNo) {
     return pct;
 }
 
+
 function update_scroll_position_indicator(pageNo) {
 
-    if(pageNo === undefined) {
+    if(page_ranges.length > 0) {
 
-        pageNo = 1;
+        if(pageNo === undefined) {
 
-        if(page_ranges.length > 0) {
+            var pst = $('pga').scrollTop, p = page_ranges.length - 1;
 
-            var pst = $('pga').scrollTop;
-
-            for(var p = pageNo; p < page_ranges.length + 1; p++) {
+            while(p > 0) {
 
                 if(pst >= page_ranges[p][0] && pst <= page_ranges[p][1]) {
-
                     pageNo = p; break;
-                }
-            }
+                }       
+
+                p -= 1;
+            }            
         }
+
+        $('prog-hilite').style.left = pageToPercent(pageNo) + '%'; 
     }
-
-    $('prog-hilite').style.left = pageToPercent(pageNo) + '%'; 
 }
-
+    
 
 function onScroll() {
 
@@ -271,15 +272,16 @@ function onScroll() {
         
         // downscroll
 
+        update_scroll_position_indicator();
+
         if(page_number <= total_pages) {
 
             if($('pga').scrollHeight - $('pga').scrollTop - $('pga').clientHeight < 1) {
 
                 page_number++;
                 auto_paginate();
-            
             }
-        }  
+        } 
 
     } else if (st < lastScrollTop) {
         
@@ -316,7 +318,7 @@ function init() {
 
     column_height = new Array(columns_per_row),
 
-    page_ranges=[], min_idx = max_idx = 0;
+    page_ranges=[[-1,-1]], min_idx = 0, max_idx = 0;
 
     column_height.fill(gutter_size);
 
@@ -411,14 +413,6 @@ function auto_paginate() {
                 // adjust the column height and continue with the next picture
 
                 column_height[j] += render_height + gutter_size;
-
-                // position indicator 
-
-                max_idx = column_height[column_height.indexOf(Math.max(...column_height))];
-
-                page_ranges[page_number] = [min_idx, max_idx];
-
-                min_idx = max_idx + 1;
             }
 
             // submit the page to the HTML interpreter
@@ -429,8 +423,15 @@ function auto_paginate() {
 
             // set render position indicators
 
+            max_idx = column_height[column_height.indexOf(Math.max(...column_height))];
+
+            page_ranges[page_number] = [min_idx, max_idx];
+
+            min_idx = max_idx + 1;
+
             $('prog-lite').style.width = pageToPercent(page_number) + '%';
-            update_scroll_position_indicator(page_number);            
+ //           update_scroll_position_indicator(page_number);         
+            update_scroll_position_indicator();         
         }
     }
 }
