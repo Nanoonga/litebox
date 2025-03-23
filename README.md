@@ -136,6 +136,20 @@ function adaptive_density(mode, id, axis, presentation_size) {
 
 ---
 
+
+
+## Meta Paginaton
+
+In testing, with a production-scale version of the masonry layout algorithm, with pagination turned off, we discovered that it's both possible and easy to dump a corpus of several thousand Super HD thumbnail images into the browser in a single render. After scrolling all the way down to the last row of images, we discovered it was difficult to scroll back up again, probably due to the sheer number of previously rendered but off-screen elements the browser needed to keep track of in order to reverse the scroll direction and work its way back to the top.
+
+We believe this means that even with pagination turned on, there is a practical limit to the number of thumbail images that can be effectively managed by the browser in a single render. Our pagination algorithm must be subject to a higher-order pagination algorithm in order to achieve "infinite" scrolling to the end of a large catalog.
+
+To help us explore strategies for a meta-pagination, we introduced on-screen indicators to help us navigate within a render. 
+
+The **Render Position Indicator** shows how much of the catalog has been rendered, from 0% to 100%. Embedded in this indicator is a **Scroll Position Indicator**, which shows the position of the display window within the rendered portion of the catalog.
+
+
+
 ## Lorem Picsum
 
 **[Lorem Picsum](https://picsum.photos/)** is an image placeholder service that allows us to download arbitrary photos at arbitrary sizes to demonstrate the placement of images in a layout.
