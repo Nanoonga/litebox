@@ -312,7 +312,7 @@ function init() {
 
     total_pages = Math.ceil(catalog.length / page_length),
 
-    page_number = 0,
+    page_number = 1,
 
     column_height = new Array(columns_per_row),
 
@@ -360,7 +360,7 @@ function auto_paginate() {
 
         var page = fetch_page();
 
-        print_r(page);        
+        // print_r(page);        
 
         page_length = page.length;
 
@@ -411,6 +411,14 @@ function auto_paginate() {
                 // adjust the column height and continue with the next picture
 
                 column_height[j] += render_height + gutter_size;
+
+                // position indicator 
+
+                max_idx = column_height[column_height.indexOf(Math.max(...column_height))];
+
+                page_ranges[page_number] = [min_idx, max_idx];
+
+                min_idx = max_idx + 1;
             }
 
             // submit the page to the HTML interpreter
