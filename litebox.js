@@ -69,6 +69,10 @@ if(DOWNLOAD_LIMIT) {
     catalog = catalog.slice(0,DOWNLOAD_LIMIT-1);
 }
 
+// lozad (lazy background image loader) will eventually be replaced with a native solution.
+// it's a fine library, but as a matter of policy we don't like to use third-party code in production
+
+observer = lozad();
 
 function $(el) {
 
@@ -398,7 +402,7 @@ function auto_paginate() {
                 
                 filespec = `https://picsum.photos/id/${catalog[page[i]][ID]}/${img_width}/${img_height}`;
 
-                chtml[i] = `<img class="brick" style="top:${ 
+                chtml[i] = `<div class="lozad brick" style="top:${
                     column_height[j]
                 }px;left:${
                     left_offset + gutter_size + (j * (render_width + gutter_size))
@@ -406,9 +410,15 @@ function auto_paginate() {
                     render_width
                 }px;height:${
                     render_height
-                }px;" src="${ filespec }" loading=lazy onclick="lightbox_open(${
+                }px;background-image:url('${ filespec }');" onclick="lightbox_open(${
                     page[i]
-                });">`; // <div class="brick-id"></div>
+                });"></div>`;
+
+                /*
+                // <div class="rqp${
+                    Q(render_width,render_height,adr)
+                }></div>
+                */
 
                 // adjust the column height and continue with the next picture
 
@@ -421,7 +431,7 @@ function auto_paginate() {
             el.innerHTML = chtml.join('');
             $('gallery').appendChild(el);
 
-            // set render position indicators
+            // update render position indicator
 
             max_idx = column_height[column_height.indexOf(Math.max(...column_height))];
 
@@ -429,9 +439,13 @@ function auto_paginate() {
 
             min_idx = max_idx + 1;
 
-            $('prog-lite').style.width = pageToPercent(page_number) + '%';
- //           update_scroll_position_indicator(page_number);         
+            $('prog-lite').style.width = pageToPercent(page_number) + '%';     
+
             update_scroll_position_indicator();         
+
+            // and lazy-load the photos
+
+            observer.observe();
         }
     }
 }

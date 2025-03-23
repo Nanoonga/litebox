@@ -150,25 +150,12 @@ a:active.icon {
 }
 
 .brick {
-        position:absolute; 
-/*        margin:0; padding:0;*/
-        display:flex;
-        justify-content:center;
-        align-items:center;
- background-color:#444;
-    cursor:zoom-in ;
-/*
     position:absolute;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     background-color:#444;
     cursor:zoom-in ;
-*/
-}
-
-.brick:hover {
-    opacity: 0.5;
 }
 
 .brick-id {
@@ -180,6 +167,11 @@ a:active.icon {
     text-align:center;
     font-family: Serif;
 }
+
+.brick:hover {
+    opacity: 0.5;
+}
+
 
 #lightbox {
   position: fixed;
