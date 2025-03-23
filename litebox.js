@@ -41,6 +41,16 @@ var
     scrollbar_width, 
     viewport_width;
 
+
+// scroll position indicator 
+
+var
+    page_ranges,
+    min_idx,
+    max_idx,
+    lastScrollTop = 0; 
+
+
 const
     responsive_columns = [0, 0, 2, 2, 2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 6, 6, 7, 7, 8, 8, 9],
     gutter_size = 8,
@@ -210,18 +220,128 @@ function nfobox_close() {
     }
 }
 
+// scroll position indicator functions
+
+
+function print_r(obj) {
+
+    // dump an object to the console for debugging
+
+    console.log(JSON.stringify(obj));
+}
+
+function pageToPercent(pageNo) {
+    
+    pageNo = (pageNo<0) ? total_pages : pageNo;
+
+    var pct = Math.floor((pageNo / total_pages) * 100);
+    // print_r([pageNo,total_pages,pct]);
+    return pct;
+}
+
+function update_scroll_position_indicator(pageNo) {
+
+    if(pageNo === undefined) {
+
+        pageNo = 1;
+
+        if(page_ranges.length > 0) {
+
+            var pst = $('pga').scrollTop;
+
+            for(var p = pageNo; p < page_ranges.length + 1; p++) {
+
+                if(pst >= page_ranges[p][0] && pst <= page_ranges[p][1]) {
+
+                    pageNo = p; break;
+                }
+            }
+        }
+    }
+
+    $('prog-hilite').style.left = pageToPercent(pageNo) + '%'; 
+}
+
+
+function onScroll() {
+
+    var st = $('pga').scrollTop;
+
+    if (st > lastScrollTop) {
+        
+        // downscroll
+
+        if(page_number <= total_pages) {
+
+            if($('pga').scrollHeight - $('pga').scrollTop - $('pga').clientHeight < 1) {
+
+                page_number++;
+                auto_paginate();
+            
+            }
+        }  
+
+    } else if (st < lastScrollTop) {
+        
+        // upscroll
+
+        update_scroll_position_indicator();
+    } 
+
+    lastScrollTop = st <= 0 ? 0 : st; 
+}
+
+
+function init() {
+
+    last_width = viewport_width,
+
+    columns_per_row = (viewport_width < 300) ? 1 : ((viewport_width > 2100) ? 12 : responsive_columns[Math.floor(viewport_width / 100)]);
+
+    total_gutter_width = (columns_per_row + 1) * gutter_size,
+
+    max_img_width = (Math.floor((viewport_width - total_gutter_width) / columns_per_row) * 4) / 4,
+
+    render_width = (max_img_width >= alt_max_width) ? alt_max_width : max_img_width,
+
+    gallery_width = (render_width * columns_per_row) + total_gutter_width,
+
+    left_offset = Math.floor((viewport_width - gallery_width) / 2);
+
+    page_length = (PAGINATE) ? Math.ceil(window_height / render_width) * columns_per_row * 2 : catalog.length,
+
+    total_pages = Math.ceil(catalog.length / page_length),
+
+    page_number = 0,
+
+    column_height = new Array(columns_per_row),
+
+    page_ranges=[], min_idx = max_idx = 0;
+
+    column_height.fill(gutter_size);
+
+    /*print_r({
+        'catalog length':catalog.length,
+        'page_length':page_length,
+        'total_pages:':total_pages
+    });*/
+}
+
 
 function fetch_page() {
 
     // fetch the next page from the catalog
 
-    var ll, rr;
+    // rewritten to fix bug induced by php-itis:
+    // element.slice(start, end) not element.slice(start, length)
 
-    if(page_number < total_pages) {
+    if(page_number > 0 && page_number <= total_pages) {
 
-        ll = (page_number * page_length), rr = ll + page_length - 1;
+        var slice_start = (page_number * page_length) - page_length;
 
-        return catalog.slice(ll, rr).map(function(value,index) {
+        // print_r({'page_number':page_number,'slice_start':slice_start,'page_length':page_length});
+
+        return catalog.slice(slice_start, slice_start + page_length).map(function(value,index) {
             return value[ROW];
         });
 
@@ -230,6 +350,7 @@ function fetch_page() {
     }
 }
 
+// -------------------------------
 
 function auto_paginate() {
 
@@ -238,6 +359,8 @@ function auto_paginate() {
     if(total_pages > 0) {
 
         var page = fetch_page();
+
+        print_r(page);        
 
         page_length = page.length;
 
@@ -295,20 +418,11 @@ function auto_paginate() {
             el = document.createElement('div');
             el.innerHTML = chtml.join('');
             $('gallery').appendChild(el);
-        }
-    }
-}
 
+            // set render position indicator
 
-function onScroll() {
-
-    if(page_number >= 0) {
-
-        if($('pga').scrollHeight - $('pga').scrollTop - $('pga').clientHeight < 1) {
-
-            page_number++;
-            page_number = (page_number>(total_pages-1)) ? -1 : page_number;
-            auto_paginate();
+            $('prog-lite').style.width = pageToPercent(page_number) + '%';
+            update_scroll_position_indicator(page_number);            
         }
     }
 }
@@ -365,32 +479,6 @@ function get_window_geometry() {
 }
 
 
-function init() {
-
-    last_width = viewport_width,
-
-    columns_per_row = (viewport_width < 300) ? 1 : ((viewport_width > 2100) ? 12 : responsive_columns[Math.floor(viewport_width / 100)]);
-
-    total_gutter_width = (columns_per_row + 1) * gutter_size,
-
-    max_img_width = (Math.floor((viewport_width - total_gutter_width) / columns_per_row) * 4) / 4,
-
-    render_width = (max_img_width >= alt_max_width) ? alt_max_width : max_img_width,
-
-    gallery_width = (render_width * columns_per_row) + total_gutter_width,
-
-    left_offset = Math.floor((viewport_width - gallery_width) / 2);
-
-    page_length = (PAGINATE) ? Math.ceil(window_height / render_width) * columns_per_row * 2 : catalog.length,
-
-    total_pages = Math.ceil(catalog.length / page_length),
-
-    page_number = 0,
-
-    column_height = new Array(columns_per_row);
-
-    column_height.fill(gutter_size);
-}
 
 
 function debounce(func) {
@@ -440,6 +528,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
     $('form1').innerHTML = `
     <div id="browser">
+
         <header>
             <nav class="left" style="padding:0 ${icon_pad}px 0 ${icon_pad}px;">
                 <span class="material-icons md-24 md-light md-inactive">menu</span>
@@ -447,9 +536,16 @@ document.addEventListener("DOMContentLoaded", function(){
             <nav id="rspeed"></nav>
             <nav></nav>
         </header>
+
+        <div id="prog-dark">
+          <div id="prog-lite"></div>
+          <div id="prog-hilite"></div>       
+        </div>
+           
         <div id="pga">
             <div id="gallery"></div>
         </div>
+
     </div>
 
     <div id="lightbox">
