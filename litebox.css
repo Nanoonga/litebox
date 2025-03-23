@@ -225,3 +225,29 @@ a:active.icon {
     filter:drop-shadow(4px 4px 3px black);
     visibility:hidden;
 }
+
+/*
+    quality prediction flags
+    red = std, yel = adr, grn = shd
+*/
+
+.rpq0, 
+.rpq1, 
+.rpq2 {
+    position:absolute;
+    top:5;
+    left:5;
+    width:16px;
+    height:16px;
+    border:#000 1px solid;
+    border-radius:50%;
+    margin:4px;
+    background:red;
+    z-index:5;
+}
+.rpq1 {
+    background:yellow;
+}
+.rpq2 {
+    background:lime;
+}
