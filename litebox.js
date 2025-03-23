@@ -419,7 +419,7 @@ function auto_paginate() {
             el.innerHTML = chtml.join('');
             $('gallery').appendChild(el);
 
-            // set render position indicator
+            // set render position indicators
 
             $('prog-lite').style.width = pageToPercent(page_number) + '%';
             update_scroll_position_indicator(page_number);            
