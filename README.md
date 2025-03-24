@@ -16,7 +16,7 @@ LiteBox introduces **Adaptive Density**, a strategy for optimizing image quality
 
 ## Getting Started
 
-* [**View the Live Demo**](https://glroyal.github.io/litebox/) on your PC, notebook, phone and tablet, or
+* [**View the Live Demo**]([LiteBox](https://nanoonga.github.io/litebox/) on your PC, notebook, phone and tablet, or
 
 * Clone or download the repo, and drag the file index.html into an open browser window, then
 
@@ -147,8 +147,6 @@ To help us explore strategies for a meta-pagination, we introduced on-screen ind
 ![](/var/www/opti5050.home.arpa/litebox/indicator1.png)
 The **Render Position Indicator** shows how much of the catalog has been rendered, from 0% to 100%. Embedded in this indicator is a **Scroll Position Indicator**, which shows the position of the display window within the rendered portion of the catalog.
 
-
-
 ## Predicted Quality
 
 Adaptive Density is a function of image size vs render size vs DevicePixelRatio, computed independently for each rendition of that image. The objective is to display the image at the highest quality on all displays at all times, and may shift between standard, adaptive, and super HD renditions as the render size or window geometry changes.
@@ -164,8 +162,6 @@ During thumbnail generation, the full-size rendition quality for each image is p
 | Blue   | Standard HD (SHD) | Standard HD displays (DPR < 2), and Super HD displays where image area <= display area |
 | Orange | Adaptive HD (ADR) | Super HD displays where image area < dpr * display area                                |
 | Red    | Super HD (SHD)    | Super HD displays where image area >= dpr * display area                               |
-
-
 
 ## Lorem Picsum
 
@@ -197,9 +193,7 @@ The Request/Response nature of the HTTP protocol is similar to, and probably a s
 
 Computed HTML was developed near the end of the dialup era to achieve broadband-like HTML performance over dialup Internet connections by applying many of the same optimizations, such as structuring a website as a set of forms (all CHTML pages are forms) that are cached in their entirety on the browser, eliminating 99% of redundant data traffic. CHTML goes a step farther by caching procedures that render HTML in situ rather than caching HTML rendered on a remote server, and once the cache is populated only ephemeral data (session credentials, query results) need be exchanged with the server at all.
 
-In the broadband era, computed HTML makes web applications as performant as native ones by driving the HTML interpreter programmatically rather than streaming it from a remote server. This elementary web application is an example. 
-
-
+In the broadband era, computed HTML makes web applications as performant as native ones by driving the HTML interpreter programmatically rather than streaming markup from a remote server. This elementary web application is an example. 
 
 ## Wisdom
 
