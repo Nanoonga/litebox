@@ -16,7 +16,7 @@ LiteBox introduces **Adaptive Density**, a strategy for optimizing image quality
 
 ## Getting Started
 
-* [**View the Live Demo**]([LiteBox](https://nanoonga.github.io/litebox/) on your PC, notebook, phone and tablet, or
+* [**View the Live Demo**](https://nanoonga.github.io/litebox/) on your PC, notebook, phone and tablet, or
 
 * Clone or download the repo, and drag the file index.html into an open browser window, then
 
