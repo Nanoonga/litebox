@@ -366,16 +366,12 @@ function predictQ(id) {
     // 1 = adaptive
     // 2 = super
 
-    var q = 0; // standard HD displays
+    var 
+        image_axis = (catalog[id][WIDTH] > catalog[id][HEIGHT]) ? 0 : 1, // landscape(0) portrait(1)
+        image_area = catalog[id][image_axis],
+        display_area = [viewport_width, viewport_height][image_axis];
 
-    if(dpr > 1) {
-
-        // super HD displays
-
-        q = ((Math.max(catalog[id][WIDTH],catalog[id][HEIGHT]) * dpr) >= Math.max(window_width,window_height)) ? 2 : 1;
-    }
-
-    return q;
+    return (image_area <= display_area) ? 0 : ((image_area * dpr >= display_area) ? 2 : 1); 
 } 
 
 
@@ -433,12 +429,10 @@ function auto_paginate() {
                     render_height
                 }px;background-image:url('${ filespec }');" onclick="lightbox_open(${
                     page[i]
-                });"></div>`;
+                });"><div class="brick-id rqp${ predictQ(ID) }"></div></div>`;
 
                 /*
-                // <div class="rqp${
-                    Q(render_width,render_height,adr)
-                }></div>
+                // <div class="rqp${ predictQ(ID) }></div>
                 */
 
                 // adjust the column height and continue with the next picture
