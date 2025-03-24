@@ -435,7 +435,7 @@ function auto_paginate() {
                     render_height
                 }px;background-image:url('${ filespec }');" onclick="lightbox_open(${
                     page[i]
-                });"><div class="brick-id rqp${ predictQ(ID) }"></div></div>`;
+                });"><div class="rpq${predictQ(ID)}"></div></div>`;
 
                 /*
                 // <div class="rqp${ predictQ(ID) }></div>
