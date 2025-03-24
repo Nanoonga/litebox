@@ -144,7 +144,7 @@ We believe this means that even with pagination turned on, there is a practical 
 
 To help us explore strategies for a meta-pagination, we introduced on-screen indicators to help us navigate within a render. 
 
-![](/var/www/opti5050.home.arpa/litebox/indicator1.png)
+![](indicator1.png)
 The **Render Position Indicator** shows how much of the catalog has been rendered, from 0% to 100%. Embedded in this indicator is a **Scroll Position Indicator**, which shows the position of the display window within the rendered portion of the catalog.
 
 ## Predicted Quality
@@ -155,7 +155,7 @@ Adaptive Density is enabled only for Super HD displays (DevicePixelRatio > 1). H
 
 During thumbnail generation, the full-size rendition quality for each image is predicted and displayed as a colored ball in the upper left corner of the thumbnail image:
 
-![](/var/www/opti5050.home.arpa/litebox/indicator2.png)
+![](indicator2.png)
 
 | Color  | Mode              | Image Size vs Render Size vs DevicePixelRatio                                          |
 | ------ |:----------------- |:-------------------------------------------------------------------------------------- |
