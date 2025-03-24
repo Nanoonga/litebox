@@ -144,6 +144,88 @@ function adaptive_density(mode, id, axis, presentation_size) {
 }
 
 
+var render_mode;
+
+function adaptive_density_2(image_id, image_axis, display_area) {
+
+    var image_area = catalog[image_id][image_axis];
+    
+    if(dpr>1 && image_area >= dpr * display_area) {
+
+        // super HD
+        
+        render_mode = 'Super HD';
+        return Math.floor(dpr * display_area);
+
+
+    } else if(dpr>1 && image_area < dpr * display_area) {
+
+        // adaptive hd 
+
+        adr = dpr;
+
+        while(Math.floor(adr) > 1  && display_area * adr > image_area) {
+            adr -= 1;
+        }
+
+        render_mode = `Adaptive HD (ADR ${adr})`;
+        return Math.floor(adr * display_area);
+
+    } else {
+
+        // standard HD
+        render_mode = 'Standard HD';
+        return image_area;
+    }
+}
+
+function lightbox_open(image_id) {
+
+    var
+        image_width,
+        image_height,
+        image_mode,
+        image_src,
+        image_aspect = catalog[image_id][WIDTH] / catalog[image_id][HEIGHT],
+        image_axis = (catalog[image_id][WIDTH] > catalog[image_id][HEIGHT]) ? 0 : 1; // landscape(0) portrait(1) 
+     
+    if(image_axis) {
+
+        // portrait
+
+        image_height = adaptive_density_2(image_id,HEIGHT,window_height);
+        image_width = Math.floor(image_aspect * image_height);
+       
+    } else {
+
+        // landscape
+
+        image_width = adaptive_density_2(image_id,WIDTH,window_width);
+        image_height = Math.floor(image_width / image_aspect);
+    }
+
+    image_mode = render_mode;
+
+    $('nfobox').innerHTML = `
+        <table>
+            <tr><td class="stub">Picsum ID:</td><td class="col">#&thinsp;${catalog[image_id][ID]}</td></tr>
+            <tr><td class="stub">Author:</td><td class="col"><a href="https://unsplash.com/photos/${catalog[image_id][UNSPL]}" target="_blank">${authors[catalog[image_id][AUTH]]}</a></td></tr>
+            <tr><td class="stub">Catalog:</td><td class="col">${catalog[image_id][WIDTH]+'&thinsp;x&thinsp;'+catalog[image_id][HEIGHT]}</td></tr>
+            <tr><td class="stub">Window:</td><td class="col">${window_width}&thinsp;x&thinsp;${window_height}</td></tr>
+            <tr><td class="stub">Render:</td><td class="col">${image_width + '&thinsp;x&thinsp;' + image_height}</td></tr>
+            <tr><td class="stub">Mode:</td><td class="col">${image_mode}</td></tr>
+        </table>`;
+
+    $('img01').src = `https://picsum.photos/id/${catalog[image_id][ID]}/${image_width}/${image_height}`;
+
+    $('lightbox').style.display = 'block';
+    $('menu').style.visibility = 'visible';
+    $('nfobox').style.visibility = 'hidden';
+
+    last_n = image_id;
+}
+
+/*
 function lightbox_open(n) { // n = ROW
 
     // Show the selected photo in an overlay window
@@ -194,7 +276,7 @@ function lightbox_open(n) { // n = ROW
 
     last_n = n;
 }
-
+*/
 
 function lightbox_close() {
 
@@ -370,8 +452,8 @@ function predictQ(id) {
 
         // super HD displays
 
-        let image_axis = (catalog[id][WIDTH] > catalog[id][HEIGHT]) ? 0 : 1; // landscape(0) portrait(1)
-        let image_area = catalog[id][image_axis];
+        let image_axis = (catalog[image_id][WIDTH] > catalog[image_id][HEIGHT]) ? 0 : 1; // landscape(0) portrait(1)
+        let image_area = catalog[image_id][image_axis];
         let display_area = [window_width, window_height][image_axis];
 
         q = (image_area <= display_area) ? 0 : ((image_area >= dpr * display_area) ? 2 : 1); 
@@ -413,7 +495,9 @@ function auto_paginate() {
 
                 // compute the adaptive density ratio,
 
-                img_width = adaptive_density(1, page[i], WIDTH, render_width);
+//                img_width = adaptive_density(1, page[i], WIDTH, render_width);
+
+                img_width = adaptive_density_2(page[i], WIDTH, render_width);
 
                 // and compile a thumbnail image.
 
