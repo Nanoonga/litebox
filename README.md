@@ -145,6 +145,7 @@ We believe this means that even with pagination turned on, there is a practical 
 To help us explore strategies for a meta-pagination, we introduced on-screen indicators to help us navigate within a render. 
 
 ![](indicator1.png)
+
 The **Render Position Indicator** shows how much of the catalog has been rendered, from 0% to 100%. Embedded in this indicator is a **Scroll Position Indicator**, which shows the position of the display window within the rendered portion of the catalog.
 
 ## Predicted Quality
@@ -191,11 +192,12 @@ const catalog = [
 
 The Request/Response nature of the HTTP protocol is similar to, and probably a spritual descendent of, mainframe terminal protocols such as IBM 3270 and Burroughs Poll/Select which were so efficient that dozens of terminals could be run (comfortably) over a 56K leased telephone line.  Your broadband connection at home is at least 1,785 times faster than that, yet 3270 and PSP were favored for real-time applications like airline reservation systems in the 1980s.
 
-Computed HTML was developed near the end of the dialup era to achieve broadband-like HTML performance over dialup Internet connections by applying many of the same optimizations, such as structuring a website as a set of forms (all CHTML pages are forms) that are cached in their entirety on the browser, eliminating 99% of redundant data traffic. CHTML goes a step farther by caching procedures that render HTML in situ rather than caching HTML rendered on a remote server, and once the cache is populated only ephemeral data (session credentials, query results) need be exchanged with the server at all.
+Computed HTML was developed near the end of the dialup era to achieve broadband-like HTML performance over dialup Internet connections by applying many of the same optimizations, such as structuring a website as a set of pages that are cached in their entirety on the browser, eliminating 99% of redundant data traffic. CHTML goes a step farther by caching procedures that render HTML in situ rather than caching HTML rendered on a remote server, and once the cache is populated only ephemeral data (session credentials, query results) need be exchanged with the server at all.
 
 In the broadband era, computed HTML makes web applications as performant as native ones by driving the HTML interpreter programmatically rather than streaming markup from a remote server. This elementary web application is an example. 
 
 ## Wisdom
 
 *"It is the customary fate of new truths to begin as heresies and end as superstitions"*
+
 -- Thomas Henry Huxley
