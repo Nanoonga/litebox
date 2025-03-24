@@ -376,7 +376,7 @@ function predictQ(id) {
         let image_area = catalog[id][image_axis];
         let display_area = [viewport_width, viewport_height][image_axis];
 
-        q = (image_area <= display_area) ? 0 : ((image_area * dpr >= display_area) ? 2 : 1); 
+        q = (image_area <= display_area) ? 0 : ((image_area >= dpr * display_area) ? 2 : 1); 
     }
 
     return q;
