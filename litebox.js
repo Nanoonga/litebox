@@ -437,10 +437,6 @@ function auto_paginate() {
                     page[i]
                 });"><div class="rpq${predictQ(ID)}"></div></div>`;
 
-                /*
-                // <div class="rqp${ predictQ(ID) }></div>
-                */
-
                 // adjust the column height and continue with the next picture
 
                 column_height[j] += render_height + gutter_size;

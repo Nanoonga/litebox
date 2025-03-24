@@ -219,8 +219,11 @@ a:active.icon {
 }
 
 /*
+    colorballs
     quality prediction flags
-    red = std, yel = adr, grn = shd
+    red = standard HD
+    yel = adaptive density, 
+    grn = super HD
 */
 
 .rpq0, 
