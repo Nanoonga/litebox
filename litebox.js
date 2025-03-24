@@ -2,8 +2,7 @@
  *
  *   LiteBox
  *   An Adaptive Density Graphical Photo Browser written in Computed HTML
- *   © Copyright Gary Royal 2022, 2023
- *
+ *   © Copyright Gary Royal 2022, 2024
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 2 of the License, or
@@ -69,8 +68,7 @@ if(DOWNLOAD_LIMIT) {
     catalog = catalog.slice(0,DOWNLOAD_LIMIT-1);
 }
 
-// lozad (lazy background image loader) will eventually be replaced with a native solution.
-// it's a fine library, but as a matter of policy we don't like to use third-party code in production
+// lozad (lazy background image loader) might eventually be replaced with a native solution
 
 observer = lozad();
 
