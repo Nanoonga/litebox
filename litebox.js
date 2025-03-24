@@ -372,9 +372,9 @@ function predictQ(id) {
 
         // super HD displays
 
-        image_axis = (catalog[id][WIDTH] > catalog[id][HEIGHT]) ? 0 : 1, // landscape(0) portrait(1)
-        image_area = catalog[id][image_axis],
-        display_area = [viewport_width, viewport_height][image_axis];
+        let image_axis = (catalog[id][WIDTH] > catalog[id][HEIGHT]) ? 0 : 1; // landscape(0) portrait(1)
+        let image_area = catalog[id][image_axis];
+        let display_area = [viewport_width, viewport_height][image_axis];
 
         q = (image_area <= display_area) ? 0 : ((image_area * dpr >= display_area) ? 2 : 1); 
     }
