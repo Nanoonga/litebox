@@ -136,8 +136,6 @@ function adaptive_density(mode, id, axis, presentation_size) {
 
 ---
 
-
-
 ## Meta Paginaton
 
 In testing, with a production-scale version of the masonry layout algorithm, with pagination turned off, we discovered that it's both possible and easy to dump a corpus of several thousand Super HD thumbnail images into the browser in a single render. After scrolling all the way down to the last row of images, we discovered it was difficult to scroll back up again, probably due to the sheer number of previously rendered but off-screen elements the browser needed to keep track of in order to reverse the scroll direction and work its way back to the top.
@@ -146,7 +144,26 @@ We believe this means that even with pagination turned on, there is a practical 
 
 To help us explore strategies for a meta-pagination, we introduced on-screen indicators to help us navigate within a render. 
 
+![](/var/www/opti5050.home.arpa/litebox/indicator1.png)
 The **Render Position Indicator** shows how much of the catalog has been rendered, from 0% to 100%. Embedded in this indicator is a **Scroll Position Indicator**, which shows the position of the display window within the rendered portion of the catalog.
+
+
+
+## Predicted Quality
+
+Adaptive Density is a function of image size vs render size vs DevicePixelRatio, computed independently for each rendition of that image. The objective is to display the image at the highest quality on all displays at all times, and may shift between standard, adaptive, and super HD renditions as the render size or window geometry changes.
+
+Adaptive Density is enabled only for Super HD displays (DevicePixelRatio > 1). However, it is a property of raster graphic images that downsampling increases sharpness of definition, so nearly all images will exhibit improved detail simply by being properly scaled for the display context they're being viewed in. For that reason, Adaptive Density's Standard HD mode is probably objectively better than any naive presentation strategy (e.g. the *srcset* attribute of the HTML IMG element).
+
+During thumbnail generation, the full-size rendition quality for each image is predicted and displayed as a colored ball in the upper left corner of the thumbnail image:
+
+![](/var/www/opti5050.home.arpa/litebox/indicator2.png)
+
+| Color  | Mode              | Image Size vs Render Size vs DevicePixelRatio                                          |
+| ------ |:----------------- |:-------------------------------------------------------------------------------------- |
+| Blue   | Standard HD (SHD) | Standard HD displays (DPR < 2), and Super HD displays where image area <= display area |
+| Orange | Adaptive HD (ADR) | Super HD displays where image area < dpr * display area                                |
+| Red    | Super HD (SHD)    | Super HD displays where image area >= dpr * display area                               |
 
 
 
@@ -176,7 +193,15 @@ const catalog = [
 
 ## Inspiration
 
+The Request/Response nature of the HTTP protocol is similar to, and probably a spritual descendent of, mainframe terminal protocols such as IBM 3270 and Burroughs Poll/Select which were so efficient that dozens of terminals could be run (comfortably) over a 56K leased telephone line.  Your broadband connection at home is at least 1,785 times faster than that, yet 3270 and PSP were favored for real-time applications like airline reservation systems in the 1980s.
+
+Computed HTML was developed near the end of the dialup era to achieve broadband-like HTML performance over dialup Internet connections by applying many of the same optimizations, such as structuring a website as a set of forms (all CHTML pages are forms) that are cached in their entirety on the browser, eliminating 99% of redundant data traffic. CHTML goes a step farther by caching procedures that render HTML in situ rather than caching HTML rendered on a remote server, and once the cache is populated only ephemeral data (session credentials, query results) need be exchanged with the server at all.
+
+In the broadband era, computed HTML makes web applications as performant as native ones by driving the HTML interpreter programmatically rather than streaming it from a remote server. This elementary web application is an example. 
+
+
+
 ## Wisdom
 
-*"Anyone can build a fast processor. The trick is to build a fast system."*
--- Seymour Cray
+*"It is the customary fate of new truths to begin as heresies and end as superstitions"*
+-- Thomas Henry Huxley
