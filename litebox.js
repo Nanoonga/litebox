@@ -358,6 +358,27 @@ function fetch_page() {
 
 // -------------------------------
 
+
+function predictQ(id) {
+
+    // predict image rendition quality 
+    // 0 = standard
+    // 1 = adaptive
+    // 2 = super
+
+    var q = 0; // standard HD displays
+
+    if(dpr > 1) {
+
+        // super HD displays
+
+        q = ((Math.max(catalog[id][WIDTH],catalog[id][HEIGHT]) * dpr) >= Math.max(window_width,window_height)) ? 2 : 1;
+    }
+
+    return q;
+} 
+
+
 function auto_paginate() {
 
     // stream a page of thumbnails to the browser
